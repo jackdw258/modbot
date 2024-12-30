@@ -1,6 +1,8 @@
 const { Client, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 require('dotenv').config();
+const express = require('express');
+const path = require('path');
 
 const client = new Client({
   intents: [
@@ -15,6 +17,16 @@ const client = new Client({
 
 const PREFIX = '!'; // Command prefix for staff actions
 const modmailChannelId = "1322853872007647313"; // The ID of your modmail channel
+
+const app = express();
+const port = 3000;
+app.get('/', (req, res) => {
+  const imagePath = path.join(__dirname, 'index.html');
+  res.sendFile(imagePath);
+});
+app.listen(port, () => {
+  console.log('\x1b[36m[ SERVER ]\x1b[0m', '\x1b[32m SH : http://localhost:' + port + ' ✅\x1b[0m');
+});
 
 client.once('ready', () => {
   console.log(`${client.user.tag} is online and ready!`);
