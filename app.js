@@ -107,16 +107,36 @@ client.on('messageCreate', async (message) => {
     await message.reply("Your message has been forwarded to the moderators. A thread has been created.");
   }
 
-  // Handle commands in modmail threads
-  if (message.channel.parentId === modmailCategoryId && message.content.startsWith('!closemail')) {
-    const userId = message.channel.name.split('-')[1];
-    const user = await client.users.fetch(userId).catch(() => null);
+  // Handle commands and responses in modmail threads
+  if (message.channel.parentId === modmailCategoryId) {
+    // Respond to the user when a moderator sends a message
+    if (modRoleIds.some(roleId => message.member.roles.cache.has(roleId))) {
+      const userId = message.channel.name.split('-')[1];
+      const user = await client.users.fetch(userId).catch(() => null);
 
-    if (user) {
-      await user.send("Your modmail thread has been closed by the moderators. If you need further assistance, feel free to contact us again.");
+      if (user) {
+        const replyEmbed = new EmbedBuilder()
+          .setTitle('Moderator Response')
+          .setDescription(message.content)
+          .setColor('Blue')
+          .setFooter({ text: `Moderator: ${message.author.tag} | ID: ${message.author.id}` })
+          .setTimestamp();
+
+        await user.send({ embeds: [replyEmbed] });
+        await message.react('✅'); // React with a checkmark to acknowledge
+      }
     }
+    // Handle closing the modmail thread
+    if (message.content.startsWith('!closemail') && modRoleIds.some(roleId => message.member.roles.cache.has(roleId))) {
+      const userId = message.channel.name.split('-')[1];
+      const user = await client.users.fetch(userId).catch(() => null);
 
-    await message.channel.delete().catch(console.error);
+      if (user) {
+        await user.send("Your modmail thread has been closed by the moderators. If you need further assistance, feel free to contact us again.");
+      }
+
+      await message.channel.delete().catch(console.error);
+    }
   }
 });
 
