@@ -29,7 +29,7 @@ app.listen(port, () => {
 
 // Bot configuration
 const modmailCategoryId = "1323342967322443806"; // Replace with the category ID for modmail threads
-const modRoleId = ["1310320998247305336", "1310320998247305334", "1310320998247305333"]; // Replace with the moderator role ID
+const modRoleIds = ["1310320998247305336", "1310320998247305334", "1310320998247305333"]; // Replace with moderator role IDs
 const guildId = "1310320998238650428"; // Replace with your server's guild ID
 
 client.once('ready', () => {
@@ -44,11 +44,11 @@ client.on('messageCreate', async (message) => {
     const guild = client.guilds.cache.get(guildId);
     if (!guild) return console.error('Guild not found.');
 
+    // Check if the sender is a member of the guild (server) or not
     const member = guild.members.cache.get(message.author.id);
-    if (!member) {
-      return message.reply("You must be a member of the server to send modmail.");
-    }
+    const isMember = member ? true : false;
 
+    // If the user is not a member, we still allow them to send a message but hide the channel from them
     const category = guild.channels.cache.get(modmailCategoryId);
     if (!category || category.type !== 4) {
       return console.error('Modmail category not found or invalid.');
@@ -73,7 +73,7 @@ client.on('messageCreate', async (message) => {
       return message.reply("Your message has been forwarded to the moderators.");
     }
 
-    // Create a new channel for the user
+    // Create a new channel for the user (whether a member or not)
     const modmailChannel = await guild.channels.create({
       name: `modmail-${message.author.username.toLowerCase()}`,
       type: 0,
@@ -81,11 +81,17 @@ client.on('messageCreate', async (message) => {
       permissionOverwrites: [
         {
           id: guild.roles.everyone.id,
-          deny: [PermissionsBitField.Flags.ViewChannel],
+          deny: [PermissionsBitField.Flags.ViewChannel], // Deny view permissions for everyone
         },
-        {
-          id: modRoleId,
+        ...modRoleIds.map((roleId) => ({
+          id: roleId,
           allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+        })),
+        // Allow the user to send messages but deny them view access if they're not a server member
+        {
+          id: message.author.id,
+          allow: [PermissionsBitField.Flags.SendMessages],
+          deny: isMember ? [] : [PermissionsBitField.Flags.ViewChannel],
         },
       ],
     });
@@ -97,7 +103,7 @@ client.on('messageCreate', async (message) => {
       .setFooter({ text: `User ID: ${message.author.id}` })
       .setTimestamp();
 
-    await modmailChannel.send({ content: `<@&${modRoleId}>`, embeds: [modEmbed] });
+    await modmailChannel.send({ content: modRoleIds.map((id) => `<@&${id}>`).join(' '), embeds: [modEmbed] });
     await message.reply("Your message has been forwarded to the moderators. A thread has been created.");
   }
 
