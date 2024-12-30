@@ -14,7 +14,7 @@ const client = new Client({
 });
 
 const PREFIX = '!'; // Command prefix for staff actions
-const modmailChannelId = process.env.MODMAIL_CHANNEL_ID; // The ID of your modmail channel
+const modmailChannelId = "1322853872007647313"; // The ID of your modmail channel
 
 client.once('ready', () => {
   console.log(`${client.user.tag} is online and ready!`);
