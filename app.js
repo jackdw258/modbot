@@ -29,7 +29,7 @@ app.listen(port, () => {
 
 // Bot configuration
 const modmailCategoryId = "1323342967322443806"; // Replace with the category ID for modmail threads
-const modRoleIds = ["1310320998247305336", "1310320998247305334", "1310320998247305333"]; // Replace with moderator role IDs
+const modRoleIds = ["1310320998247305336", "1310320998247305334", "1310320998247305333", "1310320998247305337"]; // Replace with moderator role IDs
 const guildId = "1310320998238650428"; // Replace with your server's guild ID
 
 client.once('ready', () => {
