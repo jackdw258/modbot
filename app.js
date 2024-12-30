@@ -29,7 +29,7 @@ app.listen(port, () => {
 
 // Bot configuration
 const modmailCategoryId = "1323342967322443806"; // Replace with the category ID for modmail threads
-const modRoleIds = ["1310320998247305336", "1310320998247305334", "1310320998247305333", "1310320998247305337"]; // Replace with moderator role IDs
+const modRoleIds = ["1310320998247305336", "1310320998247305334", "1310320998247305333"]; // Replace with moderator role IDs
 const guildId = "1310320998238650428"; // Replace with your server's guild ID
 
 client.once('ready', () => {
@@ -109,7 +109,7 @@ client.on('messageCreate', async (message) => {
 
   // Handle commands and responses in modmail threads
   if (message.channel.parentId === modmailCategoryId) {
-    // Respond to the user when a moderator sends a message
+    // Check if the message was sent by a moderator
     if (modRoleIds.some(roleId => message.member.roles.cache.has(roleId))) {
       const userId = message.channel.name.split('-')[1];
       const user = await client.users.fetch(userId).catch(() => null);
@@ -122,8 +122,11 @@ client.on('messageCreate', async (message) => {
           .setFooter({ text: `Moderator: ${message.author.tag} | ID: ${message.author.id}` })
           .setTimestamp();
 
+        // Send the response to the user
         await user.send({ embeds: [replyEmbed] });
-        await message.react('✅'); // React with a checkmark to acknowledge
+
+        // Optionally, react with a ✅ to confirm the message was sent
+        await message.react('✅');
       }
     }
     // Handle closing the modmail thread
