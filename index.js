@@ -10,7 +10,22 @@ const {
 require('colors');
 require('dotenv').config();
 const config = require("./config.js");
+const express = require('express');
+const path = require('path');
 const projectVersion = require('./package.json').version || "v0.0.0";
+
+// Express setup
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  const imagePath = path.join(__dirname, 'index.html');
+  res.sendFile(imagePath);
+});
+
+app.listen(port, () => {
+  console.log('\x1b[36m[ SERVER ]\x1b[0m', '\x1b[32m SH : http://localhost:' + port + ' ✅\x1b[0m');
+});
 
 const client = new Client({
     intents: [
@@ -74,8 +89,7 @@ console.log(`
 `.underline.blue + `version ${projectVersion}, by T.F.A#7524.
 `.underline.cyan);
 
-client.login(config.client.token || process.env.CLIENT_TOKEN).catch((e) => {
-    console.error('Unable to connect to the bot, this might be an invalid token or missing required intents!\n'.red, e);
+client.login(process.env.TOKEN);
 });
 
 const commandshandler = new CommandsHandler('./commands/', false);
